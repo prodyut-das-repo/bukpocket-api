@@ -4,35 +4,10 @@ const app = express();
 const mysql = require("mysql");
 
 app.use(bodyParser.json());
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:3000",
-//       "https://bukpocket-api.onrender.com/",
-//       "http://bukpocket-api.onrender.com/",
-//     ],
-//     credentials: true,
-//   })
-// );
-app.use(function (req, res, next) {
-  // res.header("Access-Control-Allow-Origin", "*");
-  const allowedOrigins = [
-    "http://localhost:3000",
-    "https://bukpocket-api.onrender.com/",
-    "http://bukpocket-api.onrender.com/",
-  ];
-  const origin = req.headers.origin;
-  if (allowedOrigins.includes(origin)) {
-    res.setHeader("Access-Control-Allow-Origin", origin);
-  }
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-  );
-  res.header("Access-Control-Allow-credentials", true);
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, UPDATE");
-  next();
-});
+const cors = require('cors');
+app.use(cors({
+    origin: "*"
+}));
 const conn = mysql.createConnection({
   host: "bukpocketmedia.com",
   user: "u706939526_bukpocket" /* MySQL User */,
