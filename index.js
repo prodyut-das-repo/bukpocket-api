@@ -17,7 +17,7 @@ conn.connect((err) => {
   }
   console.log("Mysql Connected with App...");
 });
-
+conn.query('SET session wait_timeout=28800');
 /**
  * Get All Items
  *
@@ -72,6 +72,6 @@ Server listening
 
 --------------------------------------------*/
 
-app.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT || 2000, () => {
   console.log("Server started on port ", process.env.PORT || 5000);
 });
