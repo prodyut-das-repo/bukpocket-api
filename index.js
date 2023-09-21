@@ -4,18 +4,16 @@ const app = express();
 const mysql = require("mysql");
 
 app.use(bodyParser.json());
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Origin", "*");
-  res.setHeader(
-    "Access-Control-Allow-Methods",
-    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
-  );
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
-  if (req.method === "OPTIONS") {
-    return res.sendStatus(200);
-  }
-  next();
-});
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://bukpocket-api.onrender.com/",
+      "http://bukpocket-api.onrender.com/",
+    ],
+    credentials: true,
+  })
+);
 const conn = mysql.createConnection({
   host: "bukpocketmedia.com",
   user: "u706939526_bukpocket" /* MySQL User */,
@@ -24,12 +22,12 @@ const conn = mysql.createConnection({
 });
 
 conn.connect((err) => {
-  if (err){
+  if (err) {
     console.log(err);
   }
   console.log("Mysql Connected with App...");
 });
-conn.query('SET session wait_timeout=28800');
+conn.query("SET session wait_timeout=28800");
 /**
  * Get All Items
  *
@@ -56,7 +54,12 @@ app.get("/api/items", (req, res) => {
  */
 
 app.post("/api/items", (req, res) => {
-  let data = { name: req.body.name, email: req.body.email, phone: req.body.phone, message: req.body.message };
+  let data = {
+    name: req.body.name,
+    email: req.body.email,
+    phone: req.body.phone,
+    message: req.body.message,
+  };
   let sqlQuery = "INSERT INTO leads SET ?";
   let query = conn.query(sqlQuery, data, (err, results) => {
     if (err) throw err;
