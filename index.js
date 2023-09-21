@@ -12,14 +12,35 @@ const conn = mysql.createConnection({
 });
 
 conn.connect((err) => {
-  if (err) throw err;
+  if (err){
+    console.log(err);
+  }
   console.log("Mysql Connected with App...");
 });
 
 /**
- * Create New Item
+ * Get All Items
  *
  * @return response()
+ */
+
+app.get("/api/items", (req, res) => {
+  let sqlQuery = "SELECT * FROM leads";
+  let query = conn.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+    res.send(apiResponse(results));
+    console.log(results);
+  });
+});
+
+/**
+
+ * Create New Item
+
+ *
+
+ * @return response()
+
  */
 
 app.post("/api/items", (req, res) => {
@@ -42,10 +63,15 @@ function apiResponse(results) {
 }
 
 /*------------------------------------------
+
 --------------------------------------------
+
 Server listening
+
 --------------------------------------------
+
 --------------------------------------------*/
+
 app.listen(process.env.PORT || 5000, () => {
   console.log("Server started on port ", process.env.PORT || 5000);
 });
