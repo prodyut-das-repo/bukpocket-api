@@ -1,34 +1,191 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var flash = require('express-flash');
-var session = require('express-session');
-var mysql = require('mysql');
-var connection  = require('./lib/db');
-var usersRouter = require('./routes/users');
-var app = express();
+const express = require("express");
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(express.static(path.join(__dirname, 'public')));
+const bodyParser = require("body-parser");
 
-app.use(session({ 
-    cookie: { maxAge: 60000 },
-    store: new session.MemoryStore,
-    saveUninitialized: true,
-    resave: 'true',
-    secret: 'secret'
-}))
+const app = express();
 
-app.use(flash());
-app.use('/users', usersRouter);
+const mysql = require("mysql");
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
-  next(createError(404));
+/*------------------------------------------
+
+--------------------------------------------
+
+parse application/json
+
+--------------------------------------------
+
+--------------------------------------------*/
+
+app.use(bodyParser.json());
+
+/*------------------------------------------
+
+--------------------------------------------
+
+Database Connection
+
+--------------------------------------------
+
+--------------------------------------------*/
+
+const conn = mysql.createConnection({
+  host: "localhost",
+
+  user: "root" /* MySQL User */,
+
+  password: "root" /* MySQL Password */,
+
+  database: "node_restapi" /* MySQL Database */,
 });
 
-app.listen(3000);
+/*------------------------------------------
+
+--------------------------------------------
+
+Shows Mysql Connect
+
+--------------------------------------------
+
+--------------------------------------------*/
+
+conn.connect((err) => {
+  if (err) throw err;
+
+  console.log("Mysql Connected with App...");
+});
+
+/**
+
+ * Get All Items
+
+ *
+
+ * @return response()
+
+ */
+
+app.get("/api/items", (req, res) => {
+  let sqlQuery = "SELECT * FROM items";
+
+  let query = conn.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+
+    res.send(apiResponse(results));
+  });
+});
+
+/**
+
+ * Get Single Item
+
+ *
+
+ * @return response()
+
+ */
+
+app.get("/api/items/:id", (req, res) => {
+  let sqlQuery = "SELECT * FROM items WHERE id=" + req.params.id;
+
+  let query = conn.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+
+    res.send(apiResponse(results));
+  });
+});
+
+/**
+
+ * Create New Item
+
+ *
+
+ * @return response()
+
+ */
+
+app.post("/api/items", (req, res) => {
+  let data = { title: req.body.title, body: req.body.body };
+
+  let sqlQuery = "INSERT INTO items SET ?";
+
+  let query = conn.query(sqlQuery, data, (err, results) => {
+    if (err) throw err;
+
+    res.send(apiResponse(results));
+  });
+});
+
+/**
+
+ * Update Item
+
+ *
+
+ * @return response()
+
+ */
+
+app.put("/api/items/:id", (req, res) => {
+  let sqlQuery =
+    "UPDATE items SET title='" +
+    req.body.title +
+    "', body='" +
+    req.body.body +
+    "' WHERE id=" +
+    req.params.id;
+
+  let query = conn.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+
+    res.send(apiResponse(results));
+  });
+});
+
+/**
+
+ * Delete Item
+
+ *
+
+ * @return response()
+
+ */
+
+app.delete("/api/items/:id", (req, res) => {
+  let sqlQuery = "DELETE FROM items WHERE id=" + req.params.id + "";
+
+  let query = conn.query(sqlQuery, (err, results) => {
+    if (err) throw err;
+
+    res.send(apiResponse(results));
+  });
+});
+
+/**
+
+ * API Response
+
+ *
+
+ * @return response()
+
+ */
+
+function apiResponse(results) {
+  return JSON.stringify({ status: 200, error: null, response: results });
+}
+
+/*------------------------------------------
+
+--------------------------------------------
+
+Server listening
+
+--------------------------------------------
+
+--------------------------------------------*/
+
+app.listen(3000, () => {
+  console.log("Server started on port 3000...");
+});
